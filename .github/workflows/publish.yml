@@ -16,10 +16,18 @@ jobs:
             - name: Checkout Repository
               uses: actions/checkout@v4
 
-            - name: Setup PNPM
-              uses: pnpm/action-setup@v3
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
               with:
-                  run_install: true
+                  node-version: 22
+
+            - name: Setup PNPM
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 9.15.0
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
 
             - name: Build Worker
               run: pnpm build
@@ -28,3 +36,5 @@ jobs:
               uses: cloudflare/wrangler-action@v3
               with:
                   apiToken: ${{ secrets.CF_API_TOKEN }}
+                  packageManager: npm
+                  wranglerVersion: "4.45.3"
