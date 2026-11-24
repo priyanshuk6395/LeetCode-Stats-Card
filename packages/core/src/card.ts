@@ -6,7 +6,7 @@ import { Config, Extension, FetchedData } from "./types";
 export class Generator {
     public verbose = false;
     public config: Config = {
-        username: "jacoblincool",
+        username: "priyanshuk6395",
         site: "us",
         width: 500,
         height: 200,
@@ -182,9 +182,9 @@ export class Generator {
         }
         root.children.push(body.icon());
         delete body.icon;
-        root.children.push(body.username(data.profile.username, this.config.site));
+        root.children.push(body.username(data.profile.username, this.config.site, this.config.width));
         delete body.username;
-        root.children.push(body.ranking(data.problem.ranking));
+        root.children.push(body.ranking(data.problem.ranking, this.config.width));
         delete body.ranking;
         const [total, solved] = (["easy", "medium", "hard"] as const).reduce(
             (acc, level) => [
@@ -195,7 +195,7 @@ export class Generator {
         );
         root.children.push(body.total_solved(total, solved));
         delete body.total_solved;
-        root.children.push(body.solved(data.problem));
+        root.children.push(body.solved(data.problem, this.config.width));
         delete body.solved;
 
         Object.values(body).forEach((item) => {

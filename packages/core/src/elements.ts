@@ -28,7 +28,30 @@ export function Root(config: Config, data: FetchedData) {
                     "stroke-width": 1,
                     width: config.width - 1 + "px",
                     height: config.height - 1 + "px",
-                    rx: "4px",
+                    rx: "14px",
+                },
+            }),
+            new Item("rect", {
+                id: "accent-rail",
+                attr: { x: 0, y: 17, width: 4, height: 34, rx: 2 },
+                style: {
+                    fill: "var(--color-0)",
+                },
+            }),
+            new Item("line", {
+                id: "header-divider",
+                attr: { x1: 20, y1: 65, x2: config.width - 20, y2: 65 },
+                style: {
+                    stroke: "var(--bg-1)",
+                    "stroke-width": 1,
+                },
+            }),
+            new Item("line", {
+                id: "stats-divider",
+                attr: { x1: 125, y1: 80, x2: 125, y2: config.height - 22 },
+                style: {
+                    stroke: "var(--bg-1)",
+                    "stroke-width": 1,
                 },
             }),
         ],
@@ -86,27 +109,46 @@ export function Icon() {
     return item;
 }
 
-export function Username(username: string, site: string) {
+export function Username(username: string, site: string, width = 500) {
+    const fontSize = 21;
+    const maxTextWidth = Math.max(40, width - 175);
+    const textLength = username.length * fontSize * 0.58;
+
     const item = new Item("a", {
         id: "username",
         attr: {
             href:
                 username === "User Not Found"
-                    ? "https://github.com/JacobLinCool/LeetCode-Stats-Card"
+                    ? "https://github.com/priyanshuk6395/LeetCode-Stats-Card"
                     : `https://leetcode.${site === "us" ? "com" : "cn"}/${username}/`,
             target: "_blank",
         },
         style: {
-            transform: "translate(65px, 40px)",
+            transform: "translate(65px, 37px)",
         },
         children: [
             new Item("text", {
                 id: "username-text",
                 content: username,
+                attr:
+                    textLength > maxTextWidth
+                        ? { textLength: maxTextWidth, lengthAdjust: "spacingAndGlyphs" }
+                        : {},
                 style: {
                     fill: "var(--text-0)",
-                    "font-size": "24px",
+                    "font-size": `${fontSize}px`,
                     "font-weight": "bold",
+                },
+            }),
+            new Item("text", {
+                id: "username-label",
+                attr: { x: 0, y: 15 },
+                content: "LEETCODE PROFILE",
+                style: {
+                    fill: "var(--text-2)",
+                    "font-size": "8px",
+                    "font-weight": "bold",
+                    "letter-spacing": "1px",
                 },
             }),
         ],
@@ -115,50 +157,84 @@ export function Username(username: string, site: string) {
     return item;
 }
 
-export function Ranking(ranking: number) {
-    const item = new Item("text", {
+export function Ranking(ranking: number, width = 500) {
+    return new Item("g", {
         id: "ranking",
-        content: "#" + ranking.toString(),
         style: {
-            transform: "translate(480px, 40px)",
-            fill: "var(--text-1)",
-            "font-size": "18px",
-            "font-weight": "bold",
-            "text-anchor": "end",
+            transform: `translate(${width - 20}px, 17px)`,
         },
+        children: [
+            new Item("text", {
+                id: "ranking-label",
+                attr: { x: 0, y: 0 },
+                content: "GLOBAL RANK",
+                style: {
+                    fill: "var(--text-2)",
+                    "font-size": "8px",
+                    "font-weight": "bold",
+                    "letter-spacing": "1px",
+                    "text-anchor": "end",
+                },
+            }),
+            new Item("text", {
+                id: "ranking-value",
+                attr: { x: 0, y: 19 },
+                content: "#" + ranking.toString(),
+                style: {
+                    fill: "var(--text-1)",
+                    "font-size": "15px",
+                    "font-weight": "bold",
+                    "text-anchor": "end",
+                },
+            }),
+        ],
     });
-
-    return item;
 }
 
 export function TotalSolved(total: number, solved: number) {
+    const radius = 29;
+    const circumference = 2 * Math.PI * radius;
+    const progress = total > 0 ? Math.min(Math.max(solved / total, 0), 1) : 0;
+
     return new Item("g", {
         id: "total-solved",
         style: {
-            transform: "translate(30px, 85px)",
+            transform: "translate(20px, 87px)",
         },
         children: [
+            new Item("text", {
+                id: "total-solved-label",
+                attr: { x: 40, y: -7 },
+                content: "TOTAL SOLVED",
+                style: {
+                    fill: "var(--text-2)",
+                    "font-size": "8px",
+                    "font-weight": "bold",
+                    "letter-spacing": "1px",
+                    "text-anchor": "middle",
+                },
+            }),
             new Item("circle", {
                 id: "total-solved-bg",
                 style: {
                     cx: "40px",
-                    cy: "40px",
-                    r: "40px",
+                    cy: "39px",
+                    r: `${radius}px`,
                     stroke: "var(--bg-1)",
-                    "stroke-width": "6px",
+                    "stroke-width": "5px",
                 },
             }),
             new Item("circle", {
                 id: "total-solved-ring",
                 style: {
                     cx: "40px",
-                    cy: "40px",
-                    r: "40px",
+                    cy: "39px",
+                    r: `${radius}px`,
                     transform: "rotate(-90deg)",
-                    "transform-origin": "40px 40px",
-                    "stroke-dasharray": `${(80 * Math.PI * solved) / total} 10000`,
+                    "transform-origin": "40px 39px",
+                    "stroke-dasharray": `${circumference * progress} ${circumference}`,
                     stroke: "var(--color-0)",
-                    "stroke-width": "6px",
+                    "stroke-width": "5px",
                     "stroke-linecap": "round",
                 },
             }),
@@ -166,8 +242,8 @@ export function TotalSolved(total: number, solved: number) {
                 content: solved.toString(),
                 id: "total-solved-text",
                 style: {
-                    transform: "translate(40px, 40px)",
-                    "font-size": "28px",
+                    transform: "translate(40px, 39px)",
+                    "font-size": "22px",
                     "alignment-baseline": "central",
                     "dominant-baseline": "central",
                     "text-anchor": "middle",
@@ -175,53 +251,80 @@ export function TotalSolved(total: number, solved: number) {
                     "font-weight": "bold",
                 },
             }),
+            new Item("text", {
+                id: "total-solved-caption",
+                attr: { x: 40, y: 80 },
+                content: `of ${total} problems`,
+                style: {
+                    fill: "var(--text-1)",
+                    "font-size": "8px",
+                    "text-anchor": "middle",
+                },
+            }),
         ],
     });
 }
 
-export function Solved(problem: FetchedData["problem"]) {
+export function Solved(problem: FetchedData["problem"], width = 500) {
+    const barWidth = Math.max(40, width - 190);
     const group = new Item("g", {
         id: "solved",
         style: {
-            transform: "translate(160px, 80px)",
+            transform: "translate(145px, 81px)",
         },
+        children: [
+            new Item("text", {
+                id: "solved-label",
+                attr: { x: 0, y: 0 },
+                content: "PROBLEM BREAKDOWN",
+                style: {
+                    fill: "var(--text-2)",
+                    "font-size": "8px",
+                    "font-weight": "bold",
+                    "letter-spacing": "1px",
+                },
+            }),
+        ],
     });
 
     const difficulties = ["easy", "medium", "hard"] as const;
     const colors = ["var(--color-1)", "var(--color-2)", "var(--color-3)"] as const;
     for (let i = 0; i < difficulties.length; i++) {
+        const stats = problem[difficulties[i]];
+        const progress = stats.total > 0 ? Math.min(Math.max(stats.solved / stats.total, 0), 1) : 0;
+
         group.children?.push(
             new Item("g", {
                 id: `${difficulties[i]}-solved`,
                 style: {
-                    transform: `translate(0, ${i * 40}px)`,
+                    transform: `translate(0, ${12 + i * 30}px)`,
                 },
                 children: [
                     new Item("text", {
                         id: `${difficulties[i]}-solved-type`,
                         style: {
                             fill: "var(--text-0)",
-                            "font-size": "18px",
+                            "font-size": "11px",
                             "font-weight": "bold",
                         },
                         content: difficulties[i][0].toUpperCase() + difficulties[i].slice(1),
                     }),
                     new Item("text", {
                         id: `${difficulties[i]}-solved-count`,
+                        attr: {
+                            x: barWidth,
+                            y: 0,
+                        },
                         style: {
-                            transform: "translate(300px, 0px)",
                             fill: "var(--text-1)",
-                            "font-size": "16px",
-                            "font-weight": "bold",
+                            "font-size": "10px",
                             "text-anchor": "end",
                         },
-                        content: `${problem[difficulties[i]].solved} / ${
-                            problem[difficulties[i]].total
-                        }`,
+                        content: `${stats.solved} / ${stats.total}`,
                     }),
                     new Item("line", {
                         id: `${difficulties[i]}-solved-bg`,
-                        attr: { x1: 0, y1: 10, x2: 300, y2: 10 },
+                        attr: { x1: 0, y1: 11, x2: barWidth, y2: 11 },
                         style: {
                             stroke: "var(--bg-1)",
                             "stroke-width": "4px",
@@ -230,14 +333,11 @@ export function Solved(problem: FetchedData["problem"]) {
                     }),
                     new Item("line", {
                         id: `${difficulties[i]}-solved-progress`,
-                        attr: { x1: 0, y1: 10, x2: 300, y2: 10 },
+                        attr: { x1: 0, y1: 11, x2: barWidth, y2: 11 },
                         style: {
                             stroke: colors[i],
                             "stroke-width": "4px",
-                            "stroke-dasharray": `${
-                                300 *
-                                (problem[difficulties[i]].solved / problem[difficulties[i]].total)
-                            } 10000`,
+                            "stroke-dasharray": `${barWidth * progress} ${barWidth}`,
                             "stroke-linecap": "round",
                         },
                     }),
@@ -252,18 +352,27 @@ export function Solved(problem: FetchedData["problem"]) {
 export const selectors = [
     "#root",
     "#background",
+    "#accent-rail",
+    "#header-divider",
+    "#stats-divider",
     "#icon",
     "#L",
     "#C",
     "#dash",
     "#username",
     "#username-text",
+    "#username-label",
     "#ranking",
+    "#ranking-label",
+    "#ranking-value",
     "#total-solved",
+    "#total-solved-label",
     "#total-solved-bg",
     "#total-solved-ring",
     "#total-solved-text",
+    "#total-solved-caption",
     "#solved",
+    "#solved-label",
     "#easy-solved",
     "#easy-solved-type",
     "#easy-solved-count",

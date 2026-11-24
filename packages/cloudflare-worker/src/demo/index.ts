@@ -2,7 +2,7 @@ import { supported as themes } from "leetcode-card";
 import html from "./demo.html";
 import { fonts } from "./google-fonts";
 
-const selected_font = Math.floor(Math.random() * fonts.length);
+const selected_font = fonts.findIndex((font) => font.toLowerCase() === "baloo 2");
 
 export default html
     .replace(

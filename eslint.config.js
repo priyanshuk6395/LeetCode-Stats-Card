@@ -9,6 +9,10 @@ export default tseslint.config(
     ...tseslint.configs.recommended,
     prettier,
     {
-        ignores: ["packages/*/dist", "packages/cloudflare-worker/worker-configuration.d.ts"],
+        ignores: [
+            "packages/*/dist",
+            "packages/*/.wrangler/**",
+            "packages/cloudflare-worker/worker-configuration.d.ts",
+        ],
     },
 );

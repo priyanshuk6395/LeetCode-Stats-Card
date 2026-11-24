@@ -5,8 +5,8 @@
     "license": "MIT",
     "type": "module",
     "author": {
-        "name": "JacobLinCool",
-        "email": "jacoblincool@gmail.com"
+        "name": "Priyanshu Kumar (fork maintainer)",
+        "url": "https://github.com/priyanshuk6395"
     },
     "keywords": [
         "leetcode",
@@ -38,10 +38,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/JacobLinCool/LeetCode-Stats-Card.git"
+        "url": "https://github.com/priyanshuk6395/LeetCode-Stats-Card.git"
     },
     "bugs": {
-        "url": "https://github.com/JacobLinCool/LeetCode-Stats-Card/issues"
+        "url": "https://github.com/priyanshuk6395/LeetCode-Stats-Card/issues"
     },
-    "homepage": "https://github.com/JacobLinCool/LeetCode-Stats-Card#readme"
+    "homepage": "https://github.com/priyanshuk6395/LeetCode-Stats-Card#readme"
 }
