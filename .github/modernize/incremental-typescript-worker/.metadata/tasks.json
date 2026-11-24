@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Incremental modernization tasks for the TypeScript pnpm workspace and Cloudflare Worker.",
+  "tasks": [
+    {
+      "type": "transform",
+      "id": "001-deterministic-core-and-worker-tests",
+      "description": "Make core and Worker verification deterministic while protecting existing behavior",
+      "reason": "The current core tests call live LeetCode services, and the assessment observed an external LeetCode.cn 403. The Worker has no focused route tests, so these conditions make regressions harder to distinguish from upstream failures.",
+      "requirements": "Addresses assessment findings: live-network-dependent tests and the LeetCode.cn HTTP 403 validation failure. Separate deterministic unit/Worker behavior checks from any optional live-service smoke checks. Use existing test tooling where practical and avoid adding dependencies without a demonstrated need. Cover core data mapping and SVG generation with controlled inputs, plus the existing Worker contract: username path and query handling, default demo response, favicon redirect with status 301, and 404 for unsupported routes/methods. Keep real LeetCode integration available for explicitly run smoke validation; do not weaken behavior assertions or change public URL, query, SVG, or response semantics.",
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "true",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "type": "transform",
+      "id": "002-pull-request-quality-gates",
+      "description": "Run deterministic build, lint, and test checks on pull requests",
+      "reason": "The current PR workflow runs only the workspace build, so lint and test regressions can reach deployment unnoticed.",
+      "requirements": "Addresses assessment finding: CI currently runs `pnpm build` only. Extend the pull-request workflow to run the deterministic checks established in task 001, including workspace build and lint, and fail the PR check when one fails. Reuse the repository's pnpm workspace and pinned package-manager declaration; make the Node toolchain selection reproducible using a version supported by the existing build and Cloudflare tooling rather than introducing an unsupported runtime. Keep deployment credentials and publish behavior unchanged.",
+      "dependencies": [
+        "001-deterministic-core-and-worker-tests"
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "type": "transform",
+      "id": "003-worker-runtime-configuration-consistency",
+      "description": "Make Worker deployment and test runtime settings consistent and explicit",
+      "reason": "The root deployment configuration and package-local test/development configuration specify different compatibility dates and Node compatibility settings.",
+      "requirements": "Addresses assessment finding: Cloudflare compatibility date/runtime settings require evaluation. Trace which Wrangler configuration is used by deployment, development, and tests, then reconcile settings or document intentional differences. Preserve the current public Worker routes, response behavior, 50 ms CPU limit, build output, and Cloudflare deployment flow. Do not change compatibility dates, Node compatibility flags, or runtime APIs without targeted tests and evidence that the deployed Worker remains compatible.",
+      "dependencies": [
+        "002-pull-request-quality-gates"
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "type": "upgrade",
+      "id": "004-incremental-dependency-maintenance",
+      "description": "Update justified dependencies in small, compatibility-tested batches",
+      "reason": "The assessment found available updates across the root toolchain and both packages, including several potentially breaking major versions.",
+      "requirements": "Addresses assessment finding: dependency updates are available across root, core, and Worker manifests. Review current support and compatibility for each direct dependency; do not treat the assessment's available-version list as an instruction to upgrade everything. Prefer justified patch/minor updates first, then evaluate major changes in isolated batches, with Cloudflare Workers types, Wrangler, Workers Vitest pool, TypeScript, Vitest, ESLint, tsup/esbuild, and pnpm changes validated against their actual package usage. Use pnpm to update the lockfile. Preserve workspace links, `leetcode-card` package name/version and public exports, built outputs, Worker behavior, and deployment configuration. Omit or defer any candidate whose compatibility cannot be established. Validate each retained batch with deterministic tests, lint, build, and package export checks.",
+      "dependencies": [
+        "003-worker-runtime-configuration-consistency"
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "type": "security",
+      "id": "005-dependency-cve-scan-and-remediation",
+      "description": "Scan dependencies for confirmed CVEs and apply minimal compatible fixes",
+      "reason": "The assessment explicitly did not include a CVE scan, so dependency security status remains unknown.",
+      "requirements": "Run a dependency vulnerability scan over the workspace after dependency maintenance. Remediate confirmed vulnerabilities using the minimum patched versions compatible with the project. If a fix requires a major upgrade, record the affected dependency, current and target versions, and breaking-change risk, and validate it separately. Do not characterize the assessment's update list as CVEs and do not perform unrelated dependency upgrades. Preserve the pnpm workspace, public package exports, Worker behavior, and Cloudflare constraints; report unfixable or disputed findings with evidence.",
+      "dependencies": [
+        "004-incremental-dependency-maintenance"
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      }
+    }
+  ],
+  "metadata": {
+    "planName": "incremental-typescript-worker",
+    "projectName": "LeetCode-Stats-Card",
+    "language": "typescript",
+    "createdAt": "2026-11-24T18:17:51+05:30",
+    "version": "1.0"
+  }
+}
