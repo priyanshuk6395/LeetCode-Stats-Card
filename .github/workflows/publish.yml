@@ -33,8 +33,7 @@ jobs:
               run: pnpm build
 
             - name: Publish to Cloudflare
-              uses: cloudflare/wrangler-action@v3
-              with:
-                  apiToken: ${{ secrets.CF_API_TOKEN }}
-                  packageManager: npm
-                  wranglerVersion: "4.45.3"
+              run: pnpm --filter cloudflare-worker run deploy
+              env:
+                  CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+                  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
